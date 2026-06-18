@@ -2,6 +2,13 @@
 node_modules/
 npm-debug.log
 yarn-error.log
+frontend/node_modules/
+frontend/dist/
+backend/python-analytics/__pycache__/
+backend/python-analytics/*.pyc
+backend/python-analytics/.venv/
+.DS_Store
+.idea/
 
 # Laravel 4 specific
 bootstrap/compiled.php
@@ -28,3 +35,5 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+frontend/.env
+backend/.env
