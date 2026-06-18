@@ -32,6 +32,17 @@
     <p class="muted">Scan ID: {{ $scan->id }} | Status: {{ $scan->status->value ?? $scan->status }}</p>
 
     <div class="section">
+        <h2>Executive Summary</h2>
+        <table>
+            <tr><th>Summary</th><td>{{ $aiSummary['executive_summary'] ?? 'N/A' }}</td></tr>
+            <tr><th>Top Risks</th><td>{{ $aiSummary['top_risks'] ?? 'N/A' }}</td></tr>
+            <tr><th>Remediation Focus</th><td>{{ $aiSummary['remediation_focus'] ?? 'N/A' }}</td></tr>
+            <tr><th>Trend Commentary</th><td>{{ $aiSummary['trend_commentary'] ?? 'N/A' }}</td></tr>
+            <tr><th>Next Steps</th><td>{{ $aiSummary['next_steps'] ?? 'N/A' }}</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
         <h2>Scores</h2>
         <table>
             <tr><th>Security</th><td>{{ $scan->security_score }}</td></tr>
