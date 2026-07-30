@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import sys
 from dataclasses import dataclass
 
 from sklearn.tree import DecisionTreeClassifier
@@ -43,17 +45,22 @@ def classify_risk(metrics: dict, model: DecisionTreeClassifier | None = None) ->
 
 
 if __name__ == "__main__":
-    example = {
-        "critical_count": 1,
-        "high_count": 2,
-        "medium_count": 1,
-        "low_count": 0,
-        "secret_leak_count": 1,
-        "dependency_risk_count": 1,
-        "security_score": 72,
-        "code_quality_score": 78,
-        "dependency_score": 75,
-        "secret_score": 85,
-        "overall_health_score": 74,
-    }
-    print(classify_risk(example))
+    raw = sys.stdin.read().strip()
+    if raw:
+        example = json.loads(raw).get("metrics", {})
+    else:
+        example = {
+            "critical_count": 1,
+            "high_count": 2,
+            "medium_count": 1,
+            "low_count": 0,
+            "secret_leak_count": 1,
+            "dependency_risk_count": 1,
+            "security_score": 72,
+            "code_quality_score": 78,
+            "dependency_score": 75,
+            "secret_score": 85,
+            "overall_health_score": 74,
+        }
+
+    print(json.dumps({"risk_level": classify_risk(example)}))

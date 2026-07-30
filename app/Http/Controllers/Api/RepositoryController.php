@@ -46,7 +46,7 @@ final class RepositoryController extends Controller
     {
         $this->authorizeOwnership($request, $repository);
 
-        return response()->json($repository->load('scans'));
+        return response()->json($repository->load(['scans.reports']));
     }
 
     public function update(Request $request, Repository $repository): JsonResponse

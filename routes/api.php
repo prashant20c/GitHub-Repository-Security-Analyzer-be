@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/scans/{scan}', [ScanController::class, 'show']);
     Route::get('/scans/{scan}/findings', [ScanController::class, 'findings']);
+    Route::get('/scans/{scan}/report', [ReportController::class, 'show']);
     Route::post('/scans/{scan}/report', [ReportController::class, 'store']);
 
     Route::get('/findings/{finding}', [FindingController::class, 'show']);

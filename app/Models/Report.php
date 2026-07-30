@@ -12,6 +12,10 @@ final class Report extends Model
 {
     use HasFactory;
 
+    protected $appends = [
+        'download_url',
+    ];
+
     protected $fillable = [
         'scan_id',
         'user_id',
@@ -26,5 +30,10 @@ final class Report extends Model
     public function scan(): BelongsTo
     {
         return $this->belongsTo(Scan::class);
+    }
+
+    public function getDownloadUrlAttribute(): string
+    {
+        return sprintf('/api/reports/%d/download', $this->id);
     }
 }

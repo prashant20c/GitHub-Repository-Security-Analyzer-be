@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterable
@@ -60,7 +62,13 @@ def analytics_payload(rows: Iterable[dict]) -> dict:
         return {
             "trend_direction": "stable",
             "series": [],
-            "moving_averages": {},
+            "moving_averages": {
+                "security_score": [],
+                "code_quality_score": [],
+                "dependency_score": [],
+                "secret_score": [],
+                "overall_health_score": [],
+            },
         }
 
     series = [
@@ -76,28 +84,37 @@ def analytics_payload(rows: Iterable[dict]) -> dict:
         "series": series,
         "moving_averages": {
             "security_score": moving_average(history, "security_score"),
+            "code_quality_score": moving_average(history, "code_quality_score"),
+            "dependency_score": moving_average(history, "dependency_score"),
+            "secret_score": moving_average(history, "secret_score"),
             "overall_health_score": moving_average(history, "overall_health_score"),
         },
     }
 
 
 if __name__ == "__main__":
-    sample = [
-        {
-            "created_at": "2026-06-01T00:00:00",
-            "security_score": 90,
-            "code_quality_score": 88,
-            "dependency_score": 92,
-            "secret_score": 100,
-            "overall_health_score": 91,
-        },
-        {
-            "created_at": "2026-06-08T00:00:00",
-            "security_score": 86,
-            "code_quality_score": 88,
-            "dependency_score": 90,
-            "secret_score": 100,
-            "overall_health_score": 89,
-        },
-    ]
-    print(analytics_payload(sample))
+    raw = sys.stdin.read().strip()
+    if raw:
+        payload = json.loads(raw)
+        rows = payload.get("history", [])
+    else:
+        rows = [
+            {
+                "created_at": "2026-06-01T00:00:00",
+                "security_score": 90,
+                "code_quality_score": 88,
+                "dependency_score": 92,
+                "secret_score": 100,
+                "overall_health_score": 91,
+            },
+            {
+                "created_at": "2026-06-08T00:00:00",
+                "security_score": 86,
+                "code_quality_score": 88,
+                "dependency_score": 90,
+                "secret_score": 100,
+                "overall_health_score": 89,
+            },
+        ]
+
+    print(json.dumps(analytics_payload(rows), default=str))

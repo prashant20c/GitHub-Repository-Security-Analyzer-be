@@ -17,10 +17,12 @@ final class ProcessDueRepositoryScans extends Command
 
     public function handle(): int
     {
+        $scheduledAt = now();
+
         $repositories = Repository::query()
             ->where('is_scheduled', true)
             ->whereNotNull('next_scan_at')
-            ->where('next_scan_at', '<=', now())
+            ->where('next_scan_at', '<=', $scheduledAt)
             ->get();
 
         foreach ($repositories as $repository) {
@@ -33,11 +35,11 @@ final class ProcessDueRepositoryScans extends Command
             RunRepositoryScanJob::dispatch($scan->id);
 
             $repository->forceFill([
-                'last_scan_at' => now(),
-                'next_scan_at' => match ((string) $repository->scan_frequency->value) {
-                    'daily' => now()->addDay(),
-                    'weekly' => now()->addWeek(),
-                    'monthly' => now()->addMonth(),
+                'last_scan_at' => $scheduledAt,
+                'next_scan_at' => match ($repository->scan_frequency?->value) {
+                    'daily' => $scheduledAt->copy()->addDay(),
+                    'weekly' => $scheduledAt->copy()->addWeek(),
+                    'monthly' => $scheduledAt->copy()->addMonth(),
                     default => null,
                 },
             ])->save();

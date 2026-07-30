@@ -15,6 +15,13 @@ final class TrendAnalyzer
             return 'stable';
         }
 
+        usort($history, static function (array $left, array $right): int {
+            return strcmp(
+                (string) ($left['created_at'] ?? ''),
+                (string) ($right['created_at'] ?? '')
+            );
+        });
+
         $latest = (int) $history[array_key_last($history)]['overall_health_score'];
         $previous = (int) $history[array_key_first($history)]['overall_health_score'];
         $delta = $latest - $previous;

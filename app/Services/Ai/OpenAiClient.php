@@ -26,7 +26,7 @@ final class OpenAiClient
                 '',
                 'Finding:',
                 "Title: {$finding->title}",
-                "Severity: {$finding->severity}",
+                'Severity: ' . $finding->severity->value,
                 "Tool: {$finding->tool}",
                 'File: ' . ($finding->file_path ?? 'N/A'),
                 'Line: ' . ($finding->line_number ?? 'N/A'),

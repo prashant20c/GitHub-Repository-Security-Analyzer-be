@@ -8,7 +8,7 @@ use App\Enums\ScanStatus;
 use App\Models\Repository;
 use App\Models\Scan;
 use App\Services\Analysis\CodeQualityAnalyzer;
-use App\Services\Analytics\TrendAnalyzer;
+use App\Services\Analytics\PythonAnalyticsService;
 use App\Services\Ai\RecommendationService;
 use App\Services\Repository\RepositoryCloner;
 use App\Services\Scanning\ComposerAuditScanTool;
@@ -48,7 +48,7 @@ final class RunRepositoryScanJob implements ShouldQueue
         ScanResultNormalizer $normalizer,
         RiskScoringService $scoring,
         RecommendationService $recommendationService,
-        TrendAnalyzer $trendAnalyzer
+        PythonAnalyticsService $pythonAnalytics
     ): void {
         $scan = Scan::with('repository')->findOrFail($this->scanId);
         $repository = $scan->repository;
@@ -83,8 +83,14 @@ final class RunRepositoryScanJob implements ShouldQueue
                 + ($scores['dependency_score'] * 0.25)
                 + ($scores['secret_score'] * 0.10)
             );
+            $scores['risk_level'] = $pythonAnalytics->classifyRisk(array_merge($scores, [
+                'critical_count' => $scores['critical_count'],
+                'high_count' => $scores['high_count'],
+                'medium_count' => $scores['medium_count'],
+                'low_count' => $scores['low_count'],
+            ]));
 
-            DB::transaction(function () use ($scan, $findings, $scores, $recommendationService, $trendAnalyzer): void {
+            DB::transaction(function () use ($scan, $findings, $scores, $pythonAnalytics, $recommendationService, $commitHash): void {
                 $scan->findings()->delete();
 
                 foreach ($findings as $finding) {
@@ -111,10 +117,18 @@ final class RunRepositoryScanJob implements ShouldQueue
                     'status' => ScanStatus::Completed,
                 ]));
 
-                $previousScan = $scan->repository->scans()
-                    ->where('id', '<>', $scan->id)
-                    ->orderByDesc('created_at')
-                    ->first();
+                $trendPayload = $pythonAnalytics->trendPayload($scan->repository->scans()
+                    ->orderBy('created_at')
+                    ->get(['created_at', 'overall_health_score', 'security_score', 'code_quality_score', 'dependency_score', 'secret_score'])
+                    ->map(static fn ($row): array => [
+                        'created_at' => (string) $row->created_at,
+                        'overall_health_score' => (int) $row->overall_health_score,
+                        'security_score' => (int) $row->security_score,
+                        'code_quality_score' => (int) $row->code_quality_score,
+                        'dependency_score' => (int) $row->dependency_score,
+                        'secret_score' => (int) $row->secret_score,
+                    ])
+                    ->all());
 
                 $scan->analytics()->updateOrCreate(
                     ['scan_id' => $scan->id],
@@ -130,10 +144,7 @@ final class RunRepositoryScanJob implements ShouldQueue
                         'secret_leak_count' => $scores['secret_leak_count'],
                         'dependency_risk_count' => $scores['dependency_risk_count'],
                         'risk_level' => $scores['risk_level']->value,
-                        'trend_direction' => $trendAnalyzer->trendDirection(array_values(array_filter([
-                            $previousScan ? ['overall_health_score' => (int) $previousScan->overall_health_score] : null,
-                            ['overall_health_score' => (int) $scores['overall_health_score']],
-                        ]))),
+                        'trend_direction' => $trendPayload['trend_direction'],
                     ]
                 );
             });

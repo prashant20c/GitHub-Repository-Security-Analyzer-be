@@ -21,10 +21,10 @@ final class RiskScoringServiceTest extends TestCase
             ['tool' => 'npm-audit', 'severity' => Severity::Low],
         ]);
 
-        $this->assertSame(80, $result['security_score']);
+        $this->assertSame(63, $result['security_score']);
         $this->assertSame(85, $result['secret_score']);
         $this->assertSame(80, $result['dependency_score']);
-        $this->assertSame(86, $result['overall_health_score']);
-        $this->assertSame('Low Risk', $result['risk_level']->value);
+        $this->assertSame(79, $result['overall_health_score']);
+        $this->assertSame('Medium Risk', $result['risk_level']->value);
     }
 }

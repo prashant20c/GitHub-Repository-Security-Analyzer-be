@@ -59,7 +59,7 @@ services:
       MYSQL_PASSWORD: security_analyzer
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - "3308:3306"
     volumes:
       - mysql-data:/var/lib/mysql
 
@@ -69,9 +69,12 @@ services:
     working_dir: /var/www/frontend
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     volumes:
-      - ./frontend:/var/www/frontend
+      - ../GitHub-Repository-Security-Analyzer-fe:/var/www/frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080/api
+      VITE_API_URL: http://localhost:8080/api
     ports:
-      - "5173:5173"
+      - "5174:5173"
 
 volumes:
   mysql-data:

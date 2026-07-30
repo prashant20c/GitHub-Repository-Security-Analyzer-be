@@ -33,14 +33,14 @@ final class ScanController extends Controller
     {
         abort_unless($repository->user_id === $request->user()->id, 403);
 
-        return response()->json($repository->scans()->latest()->get());
+        return response()->json($repository->scans()->with('reports')->latest()->get());
     }
 
     public function show(Request $request, Scan $scan): JsonResponse
     {
         abort_unless($scan->user_id === $request->user()->id, 403);
 
-        return response()->json($scan->load(['findings.recommendation', 'repository', 'analytics']));
+        return response()->json($scan->load(['findings.recommendation', 'repository', 'analytics', 'reports']));
     }
 
     public function findings(Request $request, Scan $scan): JsonResponse
