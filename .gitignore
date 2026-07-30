@@ -1,39 +1,72 @@
+# PHP / Composer
 /vendor/
-node_modules/
-npm-debug.log
-yarn-error.log
+auth.json
+
+# Node / frontend tooling
+/node_modules/
 frontend/node_modules/
 frontend/dist/
-backend/python-analytics/__pycache__/
-backend/python-analytics/*.pyc
-backend/python-analytics/.venv/
-.DS_Store
-.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Laravel 4 specific
-bootstrap/compiled.php
-app/storage/
+# Python analytics tooling
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+backend/python-analytics/.pytest_cache/
+backend/python-analytics/.mypy_cache/
 
-# Laravel 5 & Lumen specific
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+backend/.env
+
+# Laravel generated files and runtime data
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+storage/app/*
+!storage/app/.gitignore
+storage/framework/cache/*
+!storage/framework/cache/.gitignore
+storage/framework/sessions/*
+!storage/framework/sessions/.gitignore
+storage/framework/testing/*
+!storage/framework/testing/.gitignore
+storage/framework/views/*
+!storage/framework/views/.gitignore
+storage/logs/*
+!storage/logs/.gitignore
+storage/*.key
 public/storage
 public/hot
+/public/build
+/storage/pail
 
-# Laravel 5 & Lumen specific with changed public path
+# Local databases and test artifacts
+*.sqlite
+*.sqlite3
+*.db
+.phpunit.result.cache
+
+# Legacy Laravel / local development files
+bootstrap/compiled.php
+app/storage/
 public_html/storage
 public_html/hot
-
-storage/*.key
-.env
 Homestead.yaml
 Homestead.json
 /.vagrant
-.phpunit.result.cache
-
-/public/build
-/storage/pail
-.env.backup
-.env.production
 .phpactor.json
-auth.json
-frontend/.env
-backend/.env
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
