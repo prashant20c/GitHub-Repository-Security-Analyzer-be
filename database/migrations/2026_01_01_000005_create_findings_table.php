@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +15,7 @@ return new class extends Migration {
             $table->string('tool');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('severity');
+            $table->string('severity')->index();
             $table->string('file_path')->nullable();
             $table->integer('line_number')->nullable();
             $table->longText('code_snippet')->nullable();
@@ -21,6 +23,9 @@ return new class extends Migration {
             $table->string('cwe_id')->nullable();
             $table->unsignedInteger('risk_score')->default(0);
             $table->timestamps();
+
+            $table->index(['scan_id', 'severity']);
+            $table->index(['scan_id', 'tool']);
         });
     }
 

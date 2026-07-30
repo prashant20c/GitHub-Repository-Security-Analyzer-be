@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,7 +11,7 @@ return new class extends Migration {
     {
         Schema::create('ai_recommendations', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('finding_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('finding_id')->constrained()->cascadeOnDelete()->unique();
             $table->text('plain_english_summary');
             $table->text('business_impact');
             $table->text('technical_explanation');
