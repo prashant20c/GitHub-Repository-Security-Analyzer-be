@@ -1,0 +1,58 @@
+{
+  "name": "prashant/github-repository-security-analyzer",
+  "type": "project",
+  "description": "AI-powered continuous GitHub repository security analyzer",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "laravel/framework": "^11.0",
+    "laravel/sanctum": "^4.0",
+    "symfony/process": "^7.0",
+    "barryvdh/laravel-dompdf": "^2.2",
+    "guzzlehttp/guzzle": "^7.0"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.23",
+    "laravel/pint": "^1.15",
+    "laravel/sail": "^1.30",
+    "mockery/mockery": "^1.6",
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover --ansi"
+    ],
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "post-create-project-cmd": [
+      "@php artisan key:generate --ansi"
+    ],
+    "test": [
+      "@php artisan test"
+    ]
+  },
+  "config": {
+    "audit": {
+      "block-insecure": false
+    },
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
