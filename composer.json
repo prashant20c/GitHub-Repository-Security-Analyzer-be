@@ -42,7 +42,7 @@
       "@php artisan key:generate --ansi"
     ],
     "test": [
-      "@php artisan test"
+      "@php vendor/bin/phpunit"
     ]
   },
   "config": {

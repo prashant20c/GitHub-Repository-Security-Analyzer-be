@@ -23,6 +23,7 @@ final class ReportControllerTest extends TestCase
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('password'),
         ]);
 
@@ -67,6 +68,7 @@ final class ReportControllerTest extends TestCase
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('password'),
         ]);
 
@@ -113,6 +115,7 @@ final class ReportControllerTest extends TestCase
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('password'),
         ]);
 
@@ -159,6 +162,7 @@ final class ReportControllerTest extends TestCase
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('password'),
         ]);
 
@@ -198,6 +202,7 @@ final class ReportControllerTest extends TestCase
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('password'),
         ]);
 

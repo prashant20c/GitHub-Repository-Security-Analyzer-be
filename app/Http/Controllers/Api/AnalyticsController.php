@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ScanStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Repository;
 use App\Services\Analytics\PythonAnalyticsService;
@@ -21,6 +22,7 @@ final class AnalyticsController extends Controller
         abort_unless($repository->user_id === $request->user()->id, 403);
 
         $history = $repository->scans()
+            ->where('status', ScanStatus::Completed)
             ->with(['analytics', 'reports'])
             ->orderBy('created_at')
             ->get();
@@ -67,7 +69,11 @@ final class AnalyticsController extends Controller
         abort_unless($repository->user_id === $request->user()->id, 403);
 
         return response()->json(
-            $repository->scans()->select(['id', 'created_at', $field])->orderBy('created_at')->get()
+            $repository->scans()
+                ->where('status', ScanStatus::Completed)
+                ->select(['id', 'created_at', $field])
+                ->orderBy('created_at')
+                ->get()
         );
     }
 }

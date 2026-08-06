@@ -14,6 +14,7 @@ use App\Services\Repository\RepositoryCloner;
 use App\Services\Scanning\ComposerAuditScanTool;
 use App\Services\Scanning\GitleaksScanTool;
 use App\Services\Scanning\NpmAuditScanTool;
+use App\Services\Scanning\OpenAiCodeScanTool;
 use App\Services\Scanning\ScanResultNormalizer;
 use App\Services\Scanning\SemgrepScanTool;
 use App\Services\Scoring\RiskScoringService;
@@ -32,10 +33,11 @@ final class RunRepositoryScanJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $timeout = 900;
+    public int $timeout;
 
     public function __construct(public readonly int $scanId)
     {
+        $this->timeout = (int) config('security.scan_timeout_seconds', 900);
     }
 
     public function handle(
@@ -44,6 +46,7 @@ final class RunRepositoryScanJob implements ShouldQueue
         GitleaksScanTool $gitleaks,
         ComposerAuditScanTool $composerAudit,
         NpmAuditScanTool $npmAudit,
+        OpenAiCodeScanTool $openAiCodeScan,
         CodeQualityAnalyzer $codeQualityAnalyzer,
         ScanResultNormalizer $normalizer,
         RiskScoringService $scoring,
@@ -53,7 +56,7 @@ final class RunRepositoryScanJob implements ShouldQueue
         $scan = Scan::with('repository')->findOrFail($this->scanId);
         $repository = $scan->repository;
 
-        $clonePath = storage_path("app/scans/{$scan->id}/repo");
+        $clonePath = rtrim((string) config('security.github_scan_base_path', storage_path('app/scans')), '/') . "/{$scan->id}/repo";
         $scan->update(['status' => ScanStatus::Running, 'started_at' => now()]);
 
         try {
@@ -65,6 +68,7 @@ final class RunRepositoryScanJob implements ShouldQueue
                 $gitleaks->scan($clonePath),
                 $composerAudit->scan($clonePath),
                 $npmAudit->scan($clonePath),
+                $openAiCodeScan->scan($clonePath),
             ];
 
             $findings = [];
@@ -116,6 +120,7 @@ final class RunRepositoryScanJob implements ShouldQueue
                     'completed_at' => now(),
                     'status' => ScanStatus::Completed,
                 ]));
+                $scan->repository->update(['last_scan_at' => now()]);
 
                 $trendPayload = $pythonAnalytics->trendPayload($scan->repository->scans()
                     ->orderBy('created_at')

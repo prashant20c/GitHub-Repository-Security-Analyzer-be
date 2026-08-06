@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ScanFrequency;
+use App\Enums\ScanStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\RunRepositoryScanJob;
 use App\Models\Repository;
+use App\Models\Scan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,7 +18,11 @@ final class RepositoryController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            Repository::query()->where('user_id', $request->user()->id)->latest()->get()
+            Repository::query()
+                ->where('user_id', $request->user()->id)
+                ->with(['scans.analytics'])
+                ->latest()
+                ->get()
         );
     }
 
@@ -39,14 +46,22 @@ final class RepositoryController extends Controller
             'next_scan_at' => $this->nextScanAtForFrequency($validated['scan_frequency']),
         ]);
 
-        return response()->json($repository, 201);
+        $scan = Scan::create([
+            'repository_id' => $repository->id,
+            'user_id' => $request->user()->id,
+            'status' => ScanStatus::Pending,
+        ]);
+
+        RunRepositoryScanJob::dispatch($scan->id);
+
+        return response()->json($repository->load('scans'), 201);
     }
 
     public function show(Request $request, Repository $repository): JsonResponse
     {
         $this->authorizeOwnership($request, $repository);
 
-        return response()->json($repository->load(['scans.reports']));
+        return response()->json($repository->load(['scans.analytics', 'scans.reports']));
     }
 
     public function update(Request $request, Repository $repository): JsonResponse

@@ -18,6 +18,18 @@ final class ScanController extends Controller
     {
         abort_unless($repository->user_id === $request->user()->id, 403);
 
+        $activeScan = $repository->scans()
+            ->whereIn('status', [ScanStatus::Pending, ScanStatus::Running])
+            ->latest()
+            ->first();
+
+        if ($activeScan) {
+            return response()->json([
+                'message' => 'A scan is already running for this repository.',
+                'scan' => $activeScan,
+            ], 409);
+        }
+
         $scan = Scan::create([
             'repository_id' => $repository->id,
             'user_id' => $request->user()->id,

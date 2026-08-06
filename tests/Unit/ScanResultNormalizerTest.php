@@ -77,4 +77,37 @@ final class ScanResultNormalizerTest extends TestCase
         $this->assertSame('package-lock.json', $findings[0]->filePath);
         $this->assertSame('1337', $findings[0]->cweId);
     }
+
+    public function test_it_normalizes_openai_code_scan_findings(): void
+    {
+        $normalizer = new ScanResultNormalizer();
+
+        $result = new ScannerResult(
+            tool: 'openai-code-scan',
+            success: true,
+            rawOutput: json_encode([
+                'findings' => [
+                    [
+                        'title' => 'SQL injection through user input',
+                        'description' => 'A request parameter reaches a query without parameter binding.',
+                        'severity' => 'high',
+                        'file_path' => 'app/Http/Controllers/UserController.php',
+                        'line_number' => 42,
+                        'code_snippet' => '$query = "...";',
+                        'owasp_category' => 'A03 Injection',
+                        'cwe_id' => 'CWE-89',
+                        'risk_score' => 84,
+                    ],
+                ],
+            ], JSON_THROW_ON_ERROR),
+        );
+
+        $findings = $normalizer->normalize($result);
+
+        $this->assertCount(1, $findings);
+        $this->assertSame('openai-code-scan', $findings[0]->tool);
+        $this->assertSame(Severity::High, $findings[0]->severity);
+        $this->assertSame('CWE-89', $findings[0]->cweId);
+        $this->assertSame(84, $findings[0]->riskScore);
+    }
 }

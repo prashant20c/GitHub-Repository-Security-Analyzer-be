@@ -9,12 +9,12 @@ use Symfony\Component\Process\Process;
 
 final class RepositoryCloner
 {
-    public function cloneRepository(string $url, string $targetPath, int $timeoutSeconds = 900): string
+    public function cloneRepository(string $url, string $targetPath, ?int $timeoutSeconds = null): string
     {
         File::ensureDirectoryExists($targetPath);
 
         $process = new Process(['git', 'clone', '--depth', '1', $url, $targetPath]);
-        $process->setTimeout($timeoutSeconds);
+        $process->setTimeout($timeoutSeconds ?? (int) config('security.scan_timeout_seconds', 900));
         $process->run();
 
         if (! $process->isSuccessful()) {
