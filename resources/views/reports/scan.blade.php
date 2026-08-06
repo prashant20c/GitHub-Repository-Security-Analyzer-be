@@ -24,6 +24,11 @@
         th { background: #f3f4f6; }
         .muted { color: #6b7280; }
         .section { margin-top: 1.5rem; }
+        .remediation { page-break-inside: avoid; margin-top: 1rem; }
+        .remediation h3 { margin: 0 0 0.35rem; font-size: 15px; }
+        .remediation p { margin: 0.3rem 0; }
+        .remediation-label { font-weight: bold; color: #374151; }
+        .code { white-space: pre-wrap; word-wrap: break-word; background: #f3f4f6; padding: 8px; }
     </style>
 </head>
 <body>
@@ -75,6 +80,34 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    <div class="section">
+        <h2>Remediation</h2>
+        @forelse ($scan->findings as $finding)
+            <div class="remediation">
+                <h3>{{ $finding->title }}</h3>
+                <p class="muted">
+                    {{ $finding->severity->value ?? $finding->severity }}
+                    @if ($finding->file_path) · {{ $finding->file_path }} @endif
+                    @if ($finding->line_number) · line {{ $finding->line_number }} @endif
+                </p>
+                @if ($finding->recommendation)
+                    <p><span class="remediation-label">Summary:</span> {{ $finding->recommendation->plain_english_summary }}</p>
+                    <p><span class="remediation-label">Business impact:</span> {{ $finding->recommendation->business_impact }}</p>
+                    <p><span class="remediation-label">Technical explanation:</span> {{ $finding->recommendation->technical_explanation }}</p>
+                    <p><span class="remediation-label">Recommended fix:</span> {{ $finding->recommendation->recommended_fix }}</p>
+                    @if ($finding->recommendation->secure_code_example)
+                        <p class="remediation-label">Secure code example:</p>
+                        <div class="code">{{ $finding->recommendation->secure_code_example }}</div>
+                    @endif
+                @else
+                    <p>{{ $finding->description ?: 'No remediation recommendation is available for this finding.' }}</p>
+                @endif
+            </div>
+        @empty
+            <p class="muted">No findings require remediation.</p>
+        @endforelse
     </div>
 </body>
 </html>
