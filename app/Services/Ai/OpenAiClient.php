@@ -148,7 +148,7 @@ final class OpenAiClient
         $topFindings = $scan->findings->take(5)->map(static function (Finding $finding): array {
             return [
                 'title' => $finding->title,
-                'severity' => (string) $finding->severity,
+                'severity' => $finding->severity->value,
                 'tool' => $finding->tool,
                 'file_path' => $finding->file_path ?? 'N/A',
             ];

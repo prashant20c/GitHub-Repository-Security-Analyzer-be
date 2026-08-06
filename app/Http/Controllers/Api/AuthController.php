@@ -109,7 +109,7 @@ final class AuthController extends Controller
             event(new Verified($user));
         }
 
-        if ($request->expectsJson()) {
+        if ($request->wantsJson()) {
             return response()->json(['message' => 'Email address verified successfully.']);
         }
 
