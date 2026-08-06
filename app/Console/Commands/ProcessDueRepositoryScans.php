@@ -26,6 +26,14 @@ final class ProcessDueRepositoryScans extends Command
             ->get();
 
         foreach ($repositories as $repository) {
+            $hasActiveScan = $repository->scans()
+                ->whereIn('status', [ScanStatus::Pending, ScanStatus::Running])
+                ->exists();
+
+            if ($hasActiveScan) {
+                continue;
+            }
+
             $scan = Scan::create([
                 'repository_id' => $repository->id,
                 'user_id' => $repository->user_id,
@@ -35,7 +43,6 @@ final class ProcessDueRepositoryScans extends Command
             RunRepositoryScanJob::dispatch($scan->id);
 
             $repository->forceFill([
-                'last_scan_at' => $scheduledAt,
                 'next_scan_at' => match ($repository->scan_frequency?->value) {
                     'daily' => $scheduledAt->copy()->addDay(),
                     'weekly' => $scheduledAt->copy()->addWeek(),

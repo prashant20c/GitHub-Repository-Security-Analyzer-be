@@ -20,6 +20,7 @@ services:
     container_name: security_analyzer_queue
     working_dir: /var/www/backend
     command: php artisan queue:work --tries=3 --timeout=900
+    restart: unless-stopped
     volumes:
       - ./:/var/www/backend
     depends_on:
@@ -33,6 +34,7 @@ services:
     container_name: security_analyzer_scheduler
     working_dir: /var/www/backend
     command: sh -c "while true; do php artisan schedule:run; sleep 60; done"
+    restart: unless-stopped
     volumes:
       - ./:/var/www/backend
     depends_on:

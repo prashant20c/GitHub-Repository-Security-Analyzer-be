@@ -77,6 +77,30 @@ final class ScanResultNormalizer
             }
         }
 
+        if ($result->tool === 'openai-code-scan' && isset($decoded['findings']) && is_array($decoded['findings'])) {
+            return array_values(array_filter(array_map(function (mixed $item): ?NormalizedFinding {
+                if (! is_array($item) || ! isset($item['title'], $item['description'])) {
+                    return null;
+                }
+
+                $severity = (string) ($item['severity'] ?? 'medium');
+                $riskScore = max(0, min(100, (int) ($item['risk_score'] ?? $this->riskScoreForSeverity($severity))));
+
+                return new NormalizedFinding(
+                    tool: 'openai-code-scan',
+                    title: (string) $item['title'],
+                    description: (string) $item['description'],
+                    severity: $this->mapSeverity($severity),
+                    filePath: isset($item['file_path']) ? (string) $item['file_path'] : null,
+                    lineNumber: isset($item['line_number']) ? max(1, (int) $item['line_number']) : null,
+                    codeSnippet: isset($item['code_snippet']) ? (string) $item['code_snippet'] : null,
+                    owaspCategory: isset($item['owasp_category']) ? (string) $item['owasp_category'] : null,
+                    cweId: isset($item['cwe_id']) ? (string) $item['cwe_id'] : null,
+                    riskScore: $riskScore,
+                );
+            }, $decoded['findings'])));
+        }
+
         return $result->findings;
     }
 
