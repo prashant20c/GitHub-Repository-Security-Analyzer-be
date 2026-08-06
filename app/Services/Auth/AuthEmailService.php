@@ -36,6 +36,8 @@ final class AuthEmailService
             'Verify your Security Analyzer email',
             "Hello {$user->name},\n\nVerify your email address: {$url}\n\nThis link expires in 60 minutes.",
             "<p>Hello {$name},</p><p>Verify your email address to activate your account:</p><p><a href=\"{$link}\">Verify email address</a></p><p>This link expires in 60 minutes.</p>",
+            (string) config('services.mailgun.verification_template'),
+            ['verification_url' => $url],
         );
     }
 

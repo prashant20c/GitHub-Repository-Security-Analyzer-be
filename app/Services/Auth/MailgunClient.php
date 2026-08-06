@@ -22,6 +22,8 @@ final class MailgunClient
         string $subject,
         string $textPart,
         string $htmlPart,
+        ?string $template = null,
+        array $variables = [],
     ): void {
         $key = (string) config('services.mailgun.key');
         $domain = (string) config('services.mailgun.domain');
@@ -38,8 +40,14 @@ final class MailgunClient
             ['name' => 'from', 'contents' => $from],
             ['name' => 'subject', 'contents' => $subject],
             ['name' => 'text', 'contents' => $textPart],
-            ['name' => 'html', 'contents' => $htmlPart],
         ];
+
+        if ($template !== null && $template !== '') {
+            $multipart[] = ['name' => 'template', 'contents' => $template];
+            $multipart[] = ['name' => 't:variables', 'contents' => json_encode($variables, JSON_THROW_ON_ERROR)];
+        } else {
+            $multipart[] = ['name' => 'html', 'contents' => $htmlPart];
+        }
 
         foreach ($recipients as $recipient) {
             $to = ! empty($recipient['name'])

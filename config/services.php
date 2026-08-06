@@ -16,5 +16,6 @@ return [
         'from_email' => env('MAILGUN_FROM_EMAIL'),
         'from_name' => env('MAILGUN_FROM_NAME', env('APP_NAME', 'Security Analyzer')),
         'base_url' => env('MAILGUN_BASE_URL', 'https://api.mailgun.net'),
+        'verification_template' => env('MAILGUN_VERIFICATION_TEMPLATE', 'verify-email'),
     ],
 ];
